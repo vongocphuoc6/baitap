@@ -136,3 +136,4 @@ ros2 topic echo /cmd_vel
 sudo apt update
 sudo apt install python3-colcon-common-extensions
 colcon --help
+source ~/ros2_ws/install/setup.bash
