@@ -137,3 +137,4 @@ sudo apt update
 sudo apt install python3-colcon-common-extensions
 colcon --help
 source ~/ros2_ws/install/setup.bash
+ros2 pkg list | grep turtlebot3_keyboard_control
