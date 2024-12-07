@@ -120,3 +120,15 @@ setup(
     },
 )
 
+//tt
+nano package.xml
+<depend>rclpy</depend>
+<depend>geometry_msgs</depend>
+
+//xong
+cd ~/ros2_ws
+colcon build
+source install/setup.bash
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+ros2 run turtlebot3_keyboard_control keyboard_control
+ros2 topic echo /cmd_vel
