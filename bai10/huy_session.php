@@ -132,3 +132,7 @@ source install/setup.bash
 ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
 ros2 run turtlebot3_keyboard_control keyboard_control
 ros2 topic echo /cmd_vel
+//
+sudo apt update
+sudo apt install python3-colcon-common-extensions
+colcon --help
