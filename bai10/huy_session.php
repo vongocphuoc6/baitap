@@ -145,23 +145,118 @@ colcon build
 source ~/ros2_ws/install/setup.bash
 ros2 run turtlebot3_keyboard_control keyboard_control
 
-<?xml version="1.0"?>
-<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematyp>
-<package format="3">
-  <name>turtlebot3_keyboard_control</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="phuoc@todo.todo">phuoc</maintainer>
-  <license>TODO: License declaration</license>
+//tt
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+import threading
+import sys
+import termios
+import tty
 
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
-  <test_depend>python3-pytest</test_depend>
-  <depend>rclpy</depend>
-  <depend>geometry_msgs</depend>
+class TurtleBotControl(Node):
+    def __init__(self):
+        super().__init__('turtlebot_control')
 
-  <export>
-    <build_type>ament_python</build_type>
-  </export>
-</package>
+        # Publisher cho vận tốc
+        self.publisher_ = self.create_publisher(Twist, 'cmd_vel', 10)
+        
+        # Subscriber cho dữ liệu LaserScan
+        self.subscriber_ = self.create_subscription(LaserScan, 'scan', self.scan_callback, 10)
+        
+        # Lệnh vận tốc
+        self.cmd = Twist()
+
+        # Biến để lưu chế độ hoạt động: True = tự hành, False = bàn phím
+        self.autonomous_mode = True
+
+        # Vận tốc mặc định
+        self.forward_speed = 0.2
+        self.turn_speed = 0.5
+
+        # Bắt đầu luồng đọc bàn phím
+        threading.Thread(target=self.keyboard_listener, daemon=True).start()
+
+    def scan_callback(self, msg):
+        """
+        Xử lý dữ liệu LaserScan để tự hành tránh vật cản (chỉ khi ở chế độ tự hành).
+        """
+        if not self.autonomous_mode:
+            return  # Không làm gì nếu đang ở chế độ điều khiển bằng bàn phím
+
+        # Lấy khoảng cách nhỏ nhất ở phía trước
+        min_distance = min(msg.ranges[:30] + msg.ranges[-30:])
+        obstacle_threshold = 0.5  # Ngưỡng phát hiện vật cản (đơn vị: mét)
+
+        # Nếu phát hiện vật cản, quay đầu; nếu không, tiến về phía trước
+        if min_distance < obstacle_threshold:
+            self.get_logger().info('Obstacle detected! Turning...')
+            self.cmd.linear.x = 0.0
+            self.cmd.angular.z = self.turn_speed  # Quay trái
+        else:
+            self.get_logger().info('Path clear. Moving forward...')
+            self.cmd.linear.x = self.forward_speed
+            self.cmd.angular.z = 0.0
+
+        # Gửi lệnh vận tốc
+        self.publisher_.publish(self.cmd)
+
+    def keyboard_listener(self):
+        """
+        Lắng nghe lệnh từ bàn phím và chuyển đổi chế độ hoặc điều khiển robot.
+        """
+        settings = termios.tcgetattr(sys.stdin)
+        try:
+            tty.setcbreak(sys.stdin.fileno())
+            print("Keyboard listener started. Press 'm' to toggle modes, or use WASD/arrows to control.")
+            print("Press Ctrl+C to stop.")
+
+            while True:
+                key = sys.stdin.read(1)  # Đọc một phím
+
+                if key == 'm':  # Chuyển chế độ
+                    self.autonomous_mode = not self.autonomous_mode
+                    mode = "Autonomous" if self.autonomous_mode else "Keyboard Control"
+                    print(f"Switched to {mode} mode.")
+                elif not self.autonomous_mode:  # Chế độ điều khiển bàn phím
+                    self.cmd = Twist()  # Reset vận tốc trước khi gán
+                    if key in ['w', '\x1b[A']:  # Tiến (W hoặc phím mũi tên lên)
+                        self.cmd.linear.x = self.forward_speed
+                    elif key in ['s', '\x1b[B']:  # Lùi (S hoặc phím mũi tên xuống)
+                        self.cmd.linear.x = -self.forward_speed
+                    elif key in ['a', '\x1b[D']:  # Quay trái (A hoặc phím mũi tên trái)
+                        self.cmd.angular.z = self.turn_speed
+                    elif key in ['d', '\x1b[C']:  # Quay phải (D hoặc phím mũi tên phải)
+                        self.cmd.angular.z = -self.turn_speed
+                    elif key == ' ':  # Dừng (phím Space)
+                        self.cmd.linear.x = 0.0
+                        self.cmd.angular.z = 0.0
+                    else:
+                        continue
+                    
+                    self.publisher_.publish(self.cmd)  # Gửi lệnh vận tốc
+        finally:
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+
+def main(args=None):
+    rclpy.init(args=args)
+    turtlebot_control = TurtleBotControl()
+    try:
+        rclpy.spin(turtlebot_control)
+    except KeyboardInterrupt:
+        print("Shutting down...")
+    finally:
+        turtlebot_control.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+
+//
+'hybrid_control = turtlebot3_keyboard_control.hybrid_control:main',
+
+            cd ~/ros2_ws
+colcon build
+source ~/ros2_ws/install/setup.bash
+            ros2 run turtlebot3_keyboard_control hybrid_control
