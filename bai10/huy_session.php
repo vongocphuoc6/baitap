@@ -144,3 +144,24 @@ rm -rf build install log
 colcon build
 source ~/ros2_ws/install/setup.bash
 ros2 run turtlebot3_keyboard_control keyboard_control
+
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematyp>
+<package format="3">
+  <name>turtlebot3_keyboard_control</name>
+  <version>0.0.0</version>
+  <description>TODO: Package description</description>
+  <maintainer email="phuoc@todo.todo">phuoc</maintainer>
+  <license>TODO: License declaration</license>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
