@@ -1,18 +1,42 @@
-<?php
-session_start();
-unset($_SESSION['name']);// huy session co ten la 'name'
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Untitled Document</title>
-</head>
+sudo apt update && sudo apt upgrade -y
+sudo apt install git -y
+git clone https://opendev.org/openstack/devstack.git
+cd devstack
+./stack.sh
 
-<body>
-<?php
-echo "Chao ban ".$_SESSION['name']." co tuoi la:".$_SESSION['age'];
-?>
+http://your-ip/dashboard
 
-</body>
-</html>
+openstack identity provider create --remote-id https://accounts.google.com \
+  --domain default google
+
+openstack federation mapping create --rules rules.json aws_mapping
+
+provider "openstack" {
+  auth_url    = "https://your-openstack-url:5000/v3"
+  user_name   = "admin"
+  password    = "your-password"
+  tenant_name = "your-project"
+}
+
+provider "aws" {
+  region = "us-west-1"
+}
+
+resource "openstack_compute_instance_v2" "vm1" {
+  name            = "vm-openstack"
+  image_name      = "Ubuntu 22.04"
+  flavor_name     = "m1.medium"
+}
+
+resource "aws_instance" "vm2" {
+  ami           = "ami-0abcdef1234567890"
+  instance_type = "t2.micro"
+}
+
+terraform init
+terraform apply -auto-approve
+
+openstack service list
+openstack network agent list
+
+ping aws-instance-ip
