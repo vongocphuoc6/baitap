@@ -4,6 +4,16 @@ git clone https://opendev.org/openstack/devstack.git
 cd devstack
 ./stack.sh
 
+nano local.conf
+
+[[local|localrc]]
+ADMIN_PASSWORD=admin
+DATABASE_PASSWORD=admin
+RABBIT_PASSWORD=admin
+SERVICE_PASSWORD=admin
+HOST_IP=192.168.1.100
+
+
 http://your-ip/dashboard
 
 openstack identity provider create --remote-id https://accounts.google.com \
