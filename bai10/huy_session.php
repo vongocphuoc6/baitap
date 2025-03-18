@@ -5,6 +5,7 @@ cd devstack
 ./stack.sh
 
 nano local.conf
+openstack service list
 
 [[local|localrc]]
 ADMIN_PASSWORD=admin
