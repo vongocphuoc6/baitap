@@ -1,3 +1,5 @@
+snap install metasploit-framework
+
 sudo apt update && sudo apt upgrade -y
 sudo apt install git -y
 git clone https://opendev.org/openstack/devstack.git
