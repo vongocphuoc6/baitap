@@ -1,3 +1,4 @@
+sudo apt update && sudo apt upgrade -y
 🔹 Bước 1: Cài đặt các gói cần thiết
 sudo apt install -y git vim net-tools curl
 
