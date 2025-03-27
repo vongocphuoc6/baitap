@@ -1,55 +1,73 @@
-Cập nhật hệ thống và cài đặt công cụ hỗ trợ:
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y net-tools curl vim git
+🔹 Bước 1: Cài đặt các gói cần thiết
+sudo apt install -y git vim net-tools curl
 
-Cài đặt OpenStack MicroStack:
-sudo snap install microstack --classic
+🔹 Bước 2: Clone DevStack từ GitHub
+git clone https://opendev.org/openstack/devstack.git
+cd devstack
 
-Khởi tạo OpenStack
-sudo microstack init --auto --control
+🔹 Bước 3: Tạo file cấu hình local.conf
+nano local.conf
+Dán nội dung sau:
 
-Kiểm tra trạng thái:
-microstack.openstack service list
+[[local|localrc]]
+ADMIN_PASSWORD=admin
+DATABASE_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
+HOST_IP=192.168.1.100
+💡 Lưu ý: Thay 192.168.1.100 bằng địa chỉ IP thực của máy bạn (ip a để kiểm tra).
 
-Truy cập Dashboard
-Tìm địa chỉ IP của OpenStack:
-ip a | grep "inet "
+🔹 Bước 4: Cài đặt OpenStack
+./stack.sh
+⏳ Quá trình này sẽ mất 15-30 phút. Sau khi hoàn thành, bạn có thể truy cập OpenStack qua trình duyệt:
+➡ http://192.168.1.100/dashboard
 
-Mở trình duyệt vào địa chỉ:
-➡ http://10.20.20.1 (hoặc IP khác tùy cấu hình)
-
-Đăng nhập:
+Đăng nhập với:
 Username: admin
-Password: Chạy lệnh để lấy mật khẩu:
-sudo snap get microstack config.credentials.admin.password
+Password: admin
 
-Tạo Máy Ảo (Instance) trong OpenStack
-microstack.openstack image list
+🔹 PHẦN 2: TẠO MÁY ẢO TRONG OPENSTACK
+1️⃣ Tạo Mạng OpenStack
+openstack network create private-net
+openstack subnet create --network private-net --subnet-range 192.168.100.0/24 private-subnet
 
-Tạo mạng:
-microstack.openstack network create test-net
-microstack.openstack subnet create --network test-net --subnet-range 192.168.100.0/24 test-subnet
+2️⃣ Tạo Image Ubuntu 22.04 cho VM
+Tải image Ubuntu:
+wget https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
+openstack image create --file jammy-server-cloudimg-amd64.img --disk-format qcow2 --container-format bare --public ubuntu-22.04
 
-Tạo máy ảo:
-microstack.openstack server create --flavor m1.tiny --image cirros --network test-net --security-group default my-vm
+3️⃣ Tạo Security Group Cho Phép SSH
+openstack security group rule create --proto tcp --dst-port 22 default
+
+4️⃣ Tạo Máy Ảo (VM)
+openstack server create --flavor m1.small --image ubuntu-22.04 --network private-net --security-group default my-vm
 
 Kiểm tra:
-microstack.openstack server list
+openstack server list
 
-Kết nối SSH vào Máy Ảo
-ssh cirros@<INSTANCE_IP>
-Lấy IP bằng:
-microstack.openstack server list
+🔹 PHẦN 3: KẾT NỐI VỚI AWS/GCP ĐỂ TẠO HYBRID CLOUD
+1️⃣ Cài đặt OpenVPN để Kết Nối OpenStack với AWS
+Trên OpenStack:
+sudo apt install -y openvpn easy-rsa
+Tạo VPN server:
+openvpn --genkey --secret /etc/openvpn/static.key
+nano /etc/openvpn/server.conf
 
-KẾT NỐI VỚI AWS/GCP (HYBRID CLOUD)
-Cài đặt OpenStack CLI
-sudo apt install -y python3-openstackclient
-Tạo kết nối VPN giữa OpenStack và AWS/GCP
-Bước 1: Cấu hình OpenStack VPN
-microstack.openstack vpn service create --router router1 --subnet test-subnet openstack-vpn
-microstack.openstack vpn ipsec-site-connection create \
-    --vpnservice openstack-vpn --ikepolicy ike-policy \
-    --ipsecpolicy ipsec-policy --peer-address <AWS_VPN_IP> \
-    --peer-id <AWS_VPN_IP> --peer-cidr 10.0.0.0/16 aws-vpn-connection
+Thêm nội dung:
 
-Bước 2: Cấu hình VPN trên AWS
+dev tun
+ifconfig 10.8.0.1 10.8.0.2
+secret /etc/openvpn/static.key
+
+Khởi động OpenVPN:
+sudo systemctl start openvpn@server
+2️⃣ Cấu Hình VPN trên AWS
+Trên AWS:
+
+Tạo VPN Gateway
+
+Cấu hình Site-to-Site VPN
+
+Nhập địa chỉ OpenStack VPN
+
+Chọn BGP hoặc Static Routing
