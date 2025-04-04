@@ -72,3 +72,17 @@ Cấu hình Site-to-Site VPN
 Nhập địa chỉ OpenStack VPN
 
 Chọn BGP hoặc Static Routing
+
+Bài bmtt
+ Chặn một địa chỉ IP cụ thể (VD: 192.168.1.100)
+netsh advfirewall firewall add rule name="ChanIP_tensv_IP" dir=in action=block remoteip=192.168.1.100
+Chặn một cổng (VD: 445 - SMB)
+netsh advfirewall firewall add rule name="ChanIP_tensv_Port" dir=in action=block protocol=TCP localport=445
+Chặn một giao thức cụ thể (VD: ICMP - Ping)
+netsh advfirewall firewall add rule name="ChanIP_tensv_ICMP" dir=in action=block protocol=ICMPv4
+Chặn truy cập đến một địa chỉ IP cụ thể (VD: 203.0.113.10)
+netsh advfirewall firewall add rule name="ChanIP_tensv_OutIP" dir=out action=block remoteip=203.0.113.10
+Chặn một cổng (VD: 21 - FTP Upload)
+netsh advfirewall firewall add rule name="ChanIP_tensv_OutPort" dir=out action=block protocol=TCP remoteport=21
+Chặn một giao thức cụ thể (VD: UDP - DNS Requests)
+netsh advfirewall firewall add rule name="ChanIP_tensv_OutUDP" dir=out action=block protocol=UDP remoteport=53
