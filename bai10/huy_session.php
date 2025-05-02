@@ -2,7 +2,8 @@ BƯỚC 1: CÀI ĐẶT MICROSTACK
 1. Cập nhật hệ thống
 sudo apt update && sudo apt upgrade -y
 2. Cài MicroStack bằng Snap
-sudo snap install microstack --classic
+sudo snap install microstack --beta --classic
+
 3. Khởi tạo cấu hình MicroStack
 sudo microstack init --auto --control
 4. Kiểm tra trạng thái
