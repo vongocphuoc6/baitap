@@ -9,6 +9,8 @@ sudo microstack init --auto --control
 4. Kiểm tra trạng thái
 microstack status
 Nếu thấy dòng OpenStack services are running, bạn đã thành công!
+cat /snap/microstack/common/etc/microstack/openrc.sh
+
 BƯỚC 2: TRUY CẬP GIAO DIỆN WEB OPENSTACK
 1. Lấy địa chỉ IP:
 ip a
