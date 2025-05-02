@@ -1,31 +1,23 @@
+BƯỚC 1: CÀI ĐẶT MICROSTACK
+1. Cập nhật hệ thống
 sudo apt update && sudo apt upgrade -y
-🔹 Bước 1: Cài đặt các gói cần thiết
-sudo apt install -y git vim net-tools curl
+2. Cài MicroStack bằng Snap
+sudo snap install microstack --classic
+3. Khởi tạo cấu hình MicroStack
+sudo microstack init --auto --control
+4. Kiểm tra trạng thái
+microstack status
+Nếu thấy dòng OpenStack services are running, bạn đã thành công!
+BƯỚC 2: TRUY CẬP GIAO DIỆN WEB OPENSTACK
+1. Lấy địa chỉ IP:
+ip a
+(tìm IP máy ảo trong dải 192.168.x.x hoặc 10.x.x.x)
 
-🔹 Bước 2: Clone DevStack từ GitHub
-git clone https://opendev.org/openstack/devstack.git
-cd devstack
-
-🔹 Bước 3: Tạo file cấu hình local.conf
-nano local.conf
-Dán nội dung sau:
-
-[[local|localrc]]
-ADMIN_PASSWORD=admin
-DATABASE_PASSWORD=$ADMIN_PASSWORD
-RABBIT_PASSWORD=$ADMIN_PASSWORD
-SERVICE_PASSWORD=$ADMIN_PASSWORD
-HOST_IP=192.168.1.100
-💡 Lưu ý: Thay 192.168.1.100 bằng địa chỉ IP thực của máy bạn (ip a để kiểm tra).
-
-🔹 Bước 4: Cài đặt OpenStack
-./stack.sh
-⏳ Quá trình này sẽ mất 15-30 phút. Sau khi hoàn thành, bạn có thể truy cập OpenStack qua trình duyệt:
-➡ http://192.168.1.100/dashboard
-
-Đăng nhập với:
+2. Truy cập dashboard:
+http://<IP máy ảo>:80
+3. Đăng nhập
 Username: admin
-Password: admin
+Password: keystone (mặc định MicroStack)
 
 🔹 PHẦN 2: TẠO MÁY ẢO TRONG OPENSTACK
 1️⃣ Tạo Mạng OpenStack
