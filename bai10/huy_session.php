@@ -22,6 +22,9 @@ http://<IP máy ảo>:80
 Username: admin
 Password: keystone (mặc định MicroStack)
 
+sudo snap get microstack config.credentials.keystone-password
+
+
 🔹 PHẦN 2: TẠO MÁY ẢO TRONG OPENSTACK
 1️⃣ Tạo Mạng OpenStack
 openstack network create private-net
