@@ -24,6 +24,9 @@ Password: keystone (mặc định MicroStack)
 
 sudo snap get microstack config.credentials.keystone-password
 
+xMZjoFKSb0JQAHktpEyAD9pXRZEMIDIG
+
+
 
 🔹 PHẦN 2: TẠO MÁY ẢO TRONG OPENSTACK
 1️⃣ Tạo Mạng OpenStack
